@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace WaffleTests\Commons\Utils\Trait\Helper;
+
+/**
+ * A helper class that is fully compliant with all security rules up to level 10.
+ */
+final readonly class FinalReadOnlyClass
+{
+}
