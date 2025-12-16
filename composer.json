@@ -22,7 +22,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "php": "^8.4",
+        "php": "^8.5",
         "waffle-commons/contracts": "self.version"
     },
     "require-dev": {
