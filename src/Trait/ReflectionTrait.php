@@ -80,9 +80,11 @@ trait ReflectionTrait
     private function isInstance(object $object, array $instances): bool
     {
         foreach ($instances as $instance) {
-            if ($object instanceof $instance) {
-                return true;
+            if (!$object instanceof $instance) {
+                continue;
             }
+
+            return true;
         }
 
         return false;
