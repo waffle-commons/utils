@@ -1,0 +1,187 @@
+variant = "loose"
+
+[[issues]]
+file = "src/Trait/ReflectionTrait.php"
+code = "impossible-assignment"
+message = "Invalid assignment: the right-hand side has type `never` and cannot produce a value."
+count = 2
+
+[[issues]]
+file = "src/Trait/ReflectionTrait.php"
+code = "never-return"
+message = "Cannot return value with type 'never' from this function."
+count = 2
+
+[[issues]]
+file = "src/Trait/ReflectionTrait.php"
+code = "non-existent-class-like"
+message = 'Class, interface, enum, or trait `Waffle\Commons\Contracts\Constant\Constant` not found.'
+count = 4
+
+[[issues]]
+file = "src/Trait/ReflectionTrait.php"
+code = "possibly-undefined-array-index"
+message = "Possibly undefined array key `int(1)` accessed on `array<array-key, string>`."
+count = 2
+
+[[issues]]
+file = "tests/src/Helper/Controller/TempController.php"
+code = "non-existent-attribute-class"
+message = 'Attribute class `Waffle\Attribute\Route` not found or could not be autoloaded.'
+count = 1
+
+[[issues]]
+file = "tests/src/Helper/Controller/TempController.php"
+code = "non-existent-class-like"
+message = 'Class `WaffleTests\Commons\Utils\Helper\Controller\TempController` cannot extend unknown type `BaseController`'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/Helper/TraitReflection.php"
+code = "less-specific-nested-argument-type"
+message = 'Argument type mismatch for argument #2 of `waffle\commons\utils\trait\reflectiontrait::isinstance`: expected `array<array-key, class-string>`, but provided type `array<array-key, mixed>` is less specific.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/Helper/TraitReflection.php"
+code = "possibly-invalid-argument"
+message = '''Possible argument type mismatch for argument #1 of `waffle\commons\utils\trait\reflectiontrait::controllervalues`: expected `array{'arguments': array<non-empty-string, string>, 'classname': string, 'method': non-empty-string, 'name': truthy-string, 'path': string}|null`, but possibly received `array<array-key, mixed>|null`.'''
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "ambiguous-object-method-access"
+message = "Cannot statically verify method call on a generic `object` type."
+count = 15
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "mixed-argument"
+message = "Invalid argument type for argument #1 of `iterator_to_array`: expected `Traversable<('K.iterator_to_array() extends mixed), ('V.iterator_to_array() extends mixed)>|array<('K.iterator_to_array() extends mixed), ('V.iterator_to_array() extends mixed)>`, but found `mixed`."
+count = 2
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "mixed-argument"
+message = "Invalid argument type for argument #2 of `array_map`: expected `array<('K.array_map() extends array-key), ReflectionMethod>`, but found `mixed`."
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "mixed-argument"
+message = 'Invalid argument type for argument #2 of `phpunit\framework\assert::assertcount`: expected `Countable|iterable<mixed, mixed>`, but found `mixed`.'
+count = 5
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "mixed-array-access"
+message = "Unsafe array access on type `mixed`."
+count = 3
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "mixed-assignment"
+message = "Assigning `mixed` type to a variable may lead to unexpected behavior."
+count = 9
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "mixed-method-access"
+message = "Attempting to access a method on a non-object type (`mixed`)."
+count = 3
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "non-existent-class-like"
+message = 'Class, interface, enum, or trait `Waffle\Commons\Contracts\Constant\Constant` not found.'
+count = 8
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\Exception` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testGetMethodsReturnsAllMethods`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\Exception` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testGetProperties`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\Exception` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testNewAttributeInstance`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testClassNameConversion`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testControllerValuesWithNullRoute`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testControllerValuesWithValidRoute`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testGetMethodsReturnsAllMethods`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testGetProperties`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testIsFinal`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testIsInstance`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\ExpectationFailedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testNewAttributeInstance`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\GeneratorNotSupportedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testControllerValuesWithNullRoute`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\GeneratorNotSupportedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testGetMethodsReturnsAllMethods`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\GeneratorNotSupportedException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testGetProperties`.'
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "unhandled-thrown-type"
+message = 'Potentially unhandled exception `PHPUnit\Framework\UnknownClassOrInterfaceException` in `WaffleTests\Commons\Utils\Trait\ReflectionTraitTest::testNewAttributeInstance`.'
+count = 1
