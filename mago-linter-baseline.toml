@@ -21,12 +21,6 @@ count = 1
 [[issues]]
 file = "tests/src/Trait/ReflectionTraitTest.php"
 code = "literal-named-argument"
-message = "Literal argument `'non_existent.php'` should be passed as a named argument for clarity."
-count = 1
-
-[[issues]]
-file = "tests/src/Trait/ReflectionTraitTest.php"
-code = "literal-named-argument"
 message = "Literal argument `0o777` should be passed as a named argument for clarity."
 count = 2
 

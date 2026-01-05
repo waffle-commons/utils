@@ -21,7 +21,7 @@ class TraitReflection
         return $this->newAttributeInstance($className, $attribute);
     }
 
-    public function callControllerValues(null|array $route = null): \Generator
+    public function callControllerValues(?array $route = null): \Generator
     {
         // Directly yield from the trait's generator method
         yield from $this->controllerValues($route);
@@ -37,12 +37,12 @@ class TraitReflection
         return $this->isInstance($object, $instances);
     }
 
-    public function callGetProperties(object $object, null|int $filter = null): array
+    public function callGetProperties(object $object, ?int $filter = null): array
     {
         return $this->getProperties($object, $filter);
     }
 
-    public function callGetMethods(object $object, null|int $filter = null): array
+    public function callGetMethods(object $object, ?int $filter = null): array
     {
         return $this->getMethods($object, $filter);
     }

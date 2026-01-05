@@ -22,7 +22,7 @@ final class ReflectionTraitTest extends TestCase
 {
     // Use an anonymous class that uses the trait to test its methods
     private object $traitObject;
-    private static null|string $staticTempDir = null;
+    private static ?string $staticTempDir = null;
 
     #[\Override]
     protected function setUp(): void
