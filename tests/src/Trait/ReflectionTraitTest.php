@@ -22,7 +22,7 @@ final class ReflectionTraitTest extends TestCase
 {
     // Use an anonymous class that uses the trait to test its methods
     private object $traitObject;
-    private static null|string $staticTempDir = null;
+    private static ?string $staticTempDir = null;
 
     #[\Override]
     protected function setUp(): void
@@ -138,7 +138,7 @@ final class ReflectionTraitTest extends TestCase
         $methods = $this->traitObject->callGetMethods($instance); // Use helper method
 
         static::assertCount(2, $methods); // __construct, publicMethod, protectedMethod
-        $methodNames = array_map(fn(ReflectionMethod $method): string => $method->getName(), $methods);
+        $methodNames = array_map(static fn(ReflectionMethod $method): string => $method->getName(), $methods);
         static::assertContains('publicMethod', $methodNames);
         static::assertContains('protectedMethod', $methodNames);
     }

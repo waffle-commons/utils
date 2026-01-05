@@ -1,12 +1,6 @@
 variant = "loose"
 
 [[issues]]
-file = "src/Trait/ReflectionTrait.php"
-code = "prefer-early-continue"
-message = "Consider using early continue pattern to reduce nesting."
-count = 1
-
-[[issues]]
 file = "tests/src/AbstractTestCase.php"
 code = "no-redundant-method-override"
 message = "Redundant method override."
@@ -14,14 +8,32 @@ count = 2
 
 [[issues]]
 file = "tests/src/Trait/ReflectionTraitTest.php"
-code = "no-error-control-operator"
-message = "Unsafe use of error control operator `@`."
+code = "literal-named-argument"
+message = "Literal argument `'<?php class NoNamespaceClass {}'` should be passed as a named argument for clarity."
 count = 1
 
 [[issues]]
 file = "tests/src/Trait/ReflectionTraitTest.php"
-code = "prefer-static-closure"
-message = "This arrow function does not use `$this` and should be declared static."
+code = "literal-named-argument"
+message = """Literal argument `'<?php namespace Test; echo "hello";'` should be passed as a named argument for clarity."""
+count = 1
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "literal-named-argument"
+message = "Literal argument `0o777` should be passed as a named argument for clarity."
+count = 2
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "literal-named-argument"
+message = "Literal argument `true` should be passed as a named argument for clarity."
+count = 4
+
+[[issues]]
+file = "tests/src/Trait/ReflectionTraitTest.php"
+code = "no-error-control-operator"
+message = "Unsafe use of error control operator `@`."
 count = 1
 
 [[issues]]

@@ -8,6 +8,4 @@ namespace WaffleTests\Commons\Utils\Trait\Helper;
  * A helper class that violates security rule #8 by containing "Controller" in its name
  * but not being declared as final.
  */
-class NonFinalTestController
-{
-}
+class NonFinalTestController {}

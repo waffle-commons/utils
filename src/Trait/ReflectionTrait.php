@@ -63,7 +63,7 @@ trait ReflectionTrait
      * }|null $route
      * @return Generator
      */
-    public function controllerValues(null|array $route = null): Generator
+    public function controllerValues(?array $route = null): Generator
     {
         if (null === $route) {
             return;
@@ -80,9 +80,11 @@ trait ReflectionTrait
     private function isInstance(object $object, array $instances): bool
     {
         foreach ($instances as $instance) {
-            if ($object instanceof $instance) {
-                return true;
+            if (!$object instanceof $instance) {
+                continue;
             }
+
+            return true;
         }
 
         return false;
@@ -98,7 +100,7 @@ trait ReflectionTrait
      * @param int|null $filter
      * @return ReflectionProperty[]
      */
-    private function getProperties(object $object, null|int $filter = null): array
+    private function getProperties(object $object, ?int $filter = null): array
     {
         return new ReflectionObject($object)->getProperties(filter: $filter);
     }
@@ -108,7 +110,7 @@ trait ReflectionTrait
      * @param int|null $filter
      * @return ReflectionMethod[]
      */
-    private function getMethods(object $object, null|int $filter = null): array
+    private function getMethods(object $object, ?int $filter = null): array
     {
         return new ReflectionObject($object)->getMethods(filter: $filter);
     }
