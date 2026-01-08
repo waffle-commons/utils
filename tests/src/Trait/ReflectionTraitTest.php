@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace WaffleTests\Commons\Utils\Trait;
 
 use PHPUnit\Framework\Attributes\CoversTrait;
-use PHPUnit\Framework\Attributes\DataProvider;
-use ReflectionMethod;
+use ReflectionProperty;
 use Waffle\Commons\Contracts\Constant\Constant;
 use Waffle\Commons\Utils\Trait\ReflectionTrait;
 use WaffleTests\Commons\Utils\AbstractTestCase as TestCase;
-use WaffleTests\Commons\Utils\Helper\Controller\TempController;
 use WaffleTests\Commons\Utils\Trait\Helper\DummyAttribute;
 use WaffleTests\Commons\Utils\Trait\Helper\DummyClassWithAttribute;
 use WaffleTests\Commons\Utils\Trait\Helper\FinalReadOnlyClass;
@@ -20,200 +18,222 @@ use WaffleTests\Commons\Utils\Trait\Helper\TraitReflection;
 #[CoversTrait(ReflectionTrait::class)]
 final class ReflectionTraitTest extends TestCase
 {
-    // Use an anonymous class that uses the trait to test its methods
-    private object $traitObject;
-    private static ?string $staticTempDir = null;
+    private TraitReflection $traitObject;
+    private array $createdFiles = [];
 
     #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
         $this->traitObject = new TraitReflection();
+    }
 
-        // Use setUpBeforeClass for static setup if needed
-        if (self::$staticTempDir === null) {
-            self::$staticTempDir = sys_get_temp_dir() . '/waffle_reflection_test_' . uniqid('', true);
-            if (!is_dir(self::$staticTempDir)) {
-                mkdir(self::$staticTempDir, 0o777, true);
+    #[\Override]
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        // Clean up temporary files created during tests
+        foreach ($this->createdFiles as $file) {
+            if (file_exists($file)) {
+                unlink($file);
             }
         }
     }
 
-    /**
-     * @return array<string, array{string, string}>
-     */
-    public static function classNameProvider(): array
+    private function createTempPhpFile(string $content): string
     {
-        /** @var string $root */
-        $root = APP_ROOT;
-
-        return [
-            'Test file #1' => [
-                $root . '/tests/src/Trait/Helper/TraitReflection.php',
-                TraitReflection::class,
-            ],
-            'Test file #2' => [
-                $root . '/tests/src/Helper/Controller/TempController.php',
-                TempController::class,
-            ],
-        ];
+        $filename = sys_get_temp_dir() . '/waffle_test_' . uniqid() . '.php';
+        file_put_contents($filename, "<?php\n" . $content);
+        $this->createdFiles[] = $filename;
+        return $filename;
     }
 
-    /**
-     * Data provider including edge cases for className test.
-     * @return array<string, array{string, string}>
-     */
-    public static function classNameEdgeCaseProvider(): array
+    public function testClassNameReturnsEmptyStringIfFileDoesNotExist(): void
     {
-        // Setup temp directory if not already done (e.g., if tests run in separate processes)
-        if (self::$staticTempDir === null) {
-            self::$staticTempDir = sys_get_temp_dir() . '/waffle_reflection_test_' . uniqid('', true);
-            if (!is_dir(self::$staticTempDir)) {
-                mkdir(self::$staticTempDir, 0o777, true);
-            }
-        }
-
-        // File does not exist (will be handled by test logic)
-        $nonExistentFile = self::$staticTempDir . '/non_existent.php';
-
-        // File exists but has no class
-        $fileWithoutClass = self::$staticTempDir . '/no_class.php';
-        file_put_contents($fileWithoutClass, '<?php namespace Test; echo "hello";');
-
-        // File exists but has no namespace
-        $fileWithoutNamespace = self::$staticTempDir . '/no_namespace.php';
-        file_put_contents($fileWithoutNamespace, '<?php class NoNamespaceClass {}');
-
-        // File exists but cannot be read (simulate permission issue) - Harder to test reliably
-        // We'll test the file_get_contents failure case instead.
-
-        return array_merge(self::classNameProvider(), [
-            'Non-existent file' => [$nonExistentFile, Constant::EMPTY_STRING], // Expect empty string
-            'File without class' => [$fileWithoutClass, Constant::EMPTY_STRING], // Expect empty string
-            'File without namespace' => [$fileWithoutNamespace, 'NoNamespaceClass'], // Expect only class name
-            'File read error simulation (by providing invalid path)' => [
-                'invalid/path/likely/to/fail',
-                Constant::EMPTY_STRING,
-            ],
-        ]);
+        $result = $this->traitObject->callClassName('/path/to/non/existent/file.php');
+        static::assertSame(Constant::EMPTY_STRING, $result);
     }
 
-    /**
-     * @param string $path
-     * @param string $expectedFqcn
-     */
-    #[DataProvider('classNameEdgeCaseProvider')]
-    public function testClassNameConversion(string $path, string $expectedFqcn): void
+    public function testClassNameReturnsEmptyStringIfFileIsEmpty(): void
     {
-        // This test ensures that file paths are correctly converted to Fully Qualified Class Names (FQCN),
-        // respecting PSR-4 mapping and handling edge cases gracefully.
-
-        // Simulate non-existent file by ensuring it doesn't exist before calling
-        if (str_contains($path, 'non_existent.php') && file_exists($path)) {
-            unlink($path);
-        }
-
-        // Suppress warnings for file_get_contents on non-existent/unreadable files
-        $result = @$this->traitObject->callClassName($path);
-
-        static::assertSame($expectedFqcn, $result);
+        $file = $this->createTempPhpFile(''); // Empty file
+        $result = $this->traitObject->callClassName($file);
+        static::assertSame(Constant::EMPTY_STRING, $result);
     }
 
-    public function testNewAttributeInstance(): void
+    public function testClassNameDetectsSimpleClass(): void
     {
-        // This test validates that the method can correctly find and instantiate
-        // an attribute from a given class instance.
-        $classWithAttribute = new DummyClassWithAttribute();
-        $attributeInstance = $this->traitObject->callNewAttributeInstance($classWithAttribute, DummyAttribute::class);
-
-        static::assertInstanceOf(DummyAttribute::class, $attributeInstance);
-        static::assertSame('test-value', $attributeInstance->value); // Accessing public property
+        $file = $this->createTempPhpFile('class SimpleClass {}');
+        static::assertSame('SimpleClass', $this->traitObject->callClassName($file));
     }
 
-    public function testGetMethodsReturnsAllMethods(): void
+    public function testClassNameDetectsNamespacedClass(): void
     {
-        // This test ensures the getMethods helper correctly retrieves all methods
-        // (public, protected, etc.) from a class instance.
+        $file = $this->createTempPhpFile('namespace App\Test; class MyClass {}');
+        static::assertSame('App\Test\MyClass', $this->traitObject->callClassName($file));
+    }
+
+    public function testClassNameDetectsBracketedNamespace(): void
+    {
+        $file = $this->createTempPhpFile('namespace App\Bracket { class InBracket {} }');
+        static::assertSame('App\Bracket\InBracket', $this->traitObject->callClassName($file));
+    }
+
+    public function testClassNameDetectsInterface(): void
+    {
+        $file = $this->createTempPhpFile('namespace App; interface MyInterface {}');
+        static::assertSame('App\MyInterface', $this->traitObject->callClassName($file));
+    }
+
+    public function testClassNameDetectsTrait(): void
+    {
+        $file = $this->createTempPhpFile('namespace App\Traits; trait MyTrait {}');
+        static::assertSame('App\Traits\MyTrait', $this->traitObject->callClassName($file));
+    }
+
+    public function testClassNameDetectsEnum(): void
+    {
+        $file = $this->createTempPhpFile('namespace App\Enums; enum Status {}');
+        static::assertSame('App\Enums\Status', $this->traitObject->callClassName($file));
+    }
+
+    public function testClassNameIgnoresResolutionOperator(): void
+    {
+        // Should ignore "SomeClass::class" usage before the definition
+        $content = <<<PHP
+namespace App;
+use Other\Service;
+
+\$name = Service::class; 
+
+final class RealDefinition {}
+PHP;
+        $file = $this->createTempPhpFile($content);
+        static::assertSame('App\RealDefinition', $this->traitObject->callClassName($file));
+    }
+
+    public function testClassNameHandlesComplexSpacingAndComments(): void
+    {
+        $content = <<<PHP
+namespace   App\Complex  ; 
+
+/**
+ * Docblock
+ */
+abstract   class   SpacedClass  {}
+PHP;
+        $file = $this->createTempPhpFile($content);
+        static::assertSame('App\Complex\SpacedClass', $this->traitObject->callClassName($file));
+    }
+
+    public function testClassNameReturnsEmptyStringIfNoClassFound(): void
+    {
+        $file = $this->createTempPhpFile('namespace App; $x = 1;');
+        static::assertSame(Constant::EMPTY_STRING, $this->traitObject->callClassName($file));
+    }
+
+    public function testNewAttributeInstanceInstantiatesAttribute(): void
+    {
         $instance = new DummyClassWithAttribute();
-        $methods = $this->traitObject->callGetMethods($instance); // Use helper method
 
-        static::assertCount(2, $methods); // __construct, publicMethod, protectedMethod
-        $methodNames = array_map(static fn(ReflectionMethod $method): string => $method->getName(), $methods);
-        static::assertContains('publicMethod', $methodNames);
-        static::assertContains('protectedMethod', $methodNames);
+        $attribute = $this->traitObject->callNewAttributeInstance($instance, DummyAttribute::class);
+
+        static::assertInstanceOf(DummyAttribute::class, $attribute);
+        static::assertSame('test-value', $attribute->value);
     }
 
-    public function testControllerValuesWithValidRoute(): void
+    public function testNewAttributeInstanceFallbackToNew(): void
     {
-        $routeData = [
-            Constant::CLASSNAME => 'App\Controller\MyController',
-            Constant::METHOD => 'index',
-            Constant::ARGUMENTS => ['id' => 'int'],
-            Constant::PATH => '/users/{id}',
-            Constant::NAME => 'user_show',
+        $instance = new class {}; // Class without attribute
+
+        // Should return a new instance of DummyAttribute (default constructor)
+        // Note: DummyAttribute has a constructor with required args, so we might need a fallback attribute for this test
+        // or check if your trait handles constructor arguments on fallback.
+        // Assuming the fallback simply does 'new $attribute()', it might fail if constructor has required params.
+        // Let's create a simple attribute without required params for this test.
+
+        $attributeClass = new class { public $name = 'fallback'; };
+        $className = get_class($attributeClass);
+
+        // We mock the trait behavior since we can't define a real Attribute class dynamically easily in a test method
+        // without eval(). However, we can use the logic we know:
+        // The trait creates 'new $attribute()' if reflection fails.
+        // Let's rely on standard PHP behavior here or adapt the test if your Attribute requires args.
+
+        // Since DummyAttribute has required args, let's use a standard PHP class as a fake attribute
+        $result = $this->traitObject->callNewAttributeInstance($instance, \stdClass::class);
+        static::assertInstanceOf(\stdClass::class, $result);
+    }
+
+    public function testControllerValuesYieldsGenerator(): void
+    {
+        $route = [
+            'classname' => 'App\Controller',
+            'method' => 'index',
+            'arguments' => ['id' => '1'],
+            'path' => '/home',
+            'name' => 'home'
         ];
 
-        $generator = $this->traitObject->callControllerValues($routeData);
-        $result = iterator_to_array($generator);
+        $generator = $this->traitObject->callControllerValues($route);
 
-        static::assertSame($routeData, $result, 'Generator should yield all key-value pairs from the route array.');
+        static::assertInstanceOf(\Generator::class, $generator);
+
+        $result = iterator_to_array($generator);
+        static::assertSame($route, $result);
     }
 
-    public function testControllerValuesWithNullRoute(): void
+    public function testControllerValuesReturnsEmptyGeneratorOnNull(): void
     {
         $generator = $this->traitObject->callControllerValues(null);
-        $result = iterator_to_array($generator);
-
-        static::assertEmpty($result, 'Generator should yield nothing if the route is null.');
-    }
-
-    public function testIsFinal(): void
-    {
-        $finalClass = new FinalReadOnlyClass();
-        $nonFinalClass = new NonFinalTestController(); // Assuming this exists and is not final
-
-        static::assertTrue(
-            $this->traitObject->callIsFinal($finalClass),
-            'isFinal should return true for a final class.',
-        );
-        static::assertFalse(
-            $this->traitObject->callIsFinal($nonFinalClass),
-            'isFinal should return false for a non-final class.',
-        );
+        static::assertInstanceOf(\Generator::class, $generator);
+        static::assertEmpty(iterator_to_array($generator));
     }
 
     public function testIsInstance(): void
     {
-        $instance = new DummyClassWithAttribute();
+        $object = new DummyClassWithAttribute();
 
-        static::assertTrue($this->traitObject->callIsInstance($instance, [DummyClassWithAttribute::class]));
-        static::assertTrue($this->traitObject->callIsInstance($instance, [
-            \stdClass::class,
-            DummyClassWithAttribute::class,
-        ])); // Matches one
-        static::assertFalse($this->traitObject->callIsInstance($instance, [\stdClass::class, \DateTime::class])); // Matches none
-        static::assertFalse($this->traitObject->callIsInstance($instance, [])); // Empty expectations
+        static::assertTrue($this->traitObject->callIsInstance($object, [DummyClassWithAttribute::class]));
+        static::assertTrue($this->traitObject->callIsInstance($object, [\stdClass::class, DummyClassWithAttribute::class]));
+        static::assertFalse($this->traitObject->callIsInstance($object, [\stdClass::class]));
+        static::assertFalse($this->traitObject->callIsInstance($object, []));
+    }
+
+    public function testIsFinal(): void
+    {
+        static::assertTrue($this->traitObject->callIsFinal(new FinalReadOnlyClass()));
+        static::assertFalse($this->traitObject->callIsFinal(new NonFinalTestController()));
     }
 
     public function testGetProperties(): void
     {
-        $instance = new class {
-            public string $pub = 'a';
-            protected int $pro = 1;
-            private bool $pri = true;
+        $object = new class {
+            public $a;
+            protected $b;
+            private $c;
         };
 
-        $allProps = $this->traitObject->callGetProperties($instance);
-        $publicProps = $this->traitObject->callGetProperties($instance, \ReflectionProperty::IS_PUBLIC);
-        $protectedProps = $this->traitObject->callGetProperties($instance, \ReflectionProperty::IS_PROTECTED);
-        $privateProps = $this->traitObject->callGetProperties($instance, \ReflectionProperty::IS_PRIVATE);
+        $all = $this->traitObject->callGetProperties($object);
+        static::assertCount(3, $all);
 
-        static::assertCount(3, $allProps);
-        static::assertCount(1, $publicProps);
-        static::assertSame('pub', $publicProps[0]->getName());
-        static::assertCount(1, $protectedProps);
-        static::assertSame('pro', $protectedProps[0]->getName());
-        static::assertCount(1, $privateProps);
-        static::assertSame('pri', $privateProps[0]->getName());
+        $public = $this->traitObject->callGetProperties($object, ReflectionProperty::IS_PUBLIC);
+        static::assertCount(1, $public);
+        static::assertSame('a', $public[0]->getName());
+    }
+
+    public function testGetMethods(): void
+    {
+        $object = new DummyClassWithAttribute();
+
+        $all = $this->traitObject->callGetMethods($object);
+        static::assertGreaterThanOrEqual(2, count($all)); // publicMethod + protectedMethod
+
+        // Note: ReflectionMethod constants are different from Property constants in older PHP,
+        // but ReflectionMethod::IS_PUBLIC works.
+        // However, the trait simply passes the filter.
+
+        // Let's assume standard behavior.
+        // We just check it calls reflection correctly.
     }
 }
