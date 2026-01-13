@@ -101,13 +101,13 @@ final class ReflectionTraitTest extends TestCase
     {
         // Should ignore "SomeClass::class" usage before the definition
         $content = <<<PHP
-namespace App;
-use Other\Service;
+            namespace App;
+            use Other\Service;
 
-\$name = Service::class; 
+            \$name = Service::class; 
 
-final class RealDefinition {}
-PHP;
+            final class RealDefinition {}
+            PHP;
         $file = $this->createTempPhpFile($content);
         static::assertSame('App\RealDefinition', $this->traitObject->callClassName($file));
     }
@@ -115,13 +115,13 @@ PHP;
     public function testClassNameHandlesComplexSpacingAndComments(): void
     {
         $content = <<<PHP
-namespace   App\Complex  ; 
+            namespace   App\Complex  ; 
 
-/**
- * Docblock
- */
-abstract   class   SpacedClass  {}
-PHP;
+            /**
+             * Docblock
+             */
+            abstract   class   SpacedClass  {}
+            PHP;
         $file = $this->createTempPhpFile($content);
         static::assertSame('App\Complex\SpacedClass', $this->traitObject->callClassName($file));
     }
@@ -152,7 +152,9 @@ PHP;
         // Assuming the fallback simply does 'new $attribute()', it might fail if constructor has required params.
         // Let's create a simple attribute without required params for this test.
 
-        $attributeClass = new class { public $name = 'fallback'; };
+        $attributeClass = new class {
+            public $name = 'fallback';
+        };
         $className = get_class($attributeClass);
 
         // We mock the trait behavior since we can't define a real Attribute class dynamically easily in a test method
@@ -172,7 +174,7 @@ PHP;
             'method' => 'index',
             'arguments' => ['id' => '1'],
             'path' => '/home',
-            'name' => 'home'
+            'name' => 'home',
         ];
 
         $generator = $this->traitObject->callControllerValues($route);
@@ -195,7 +197,10 @@ PHP;
         $object = new DummyClassWithAttribute();
 
         static::assertTrue($this->traitObject->callIsInstance($object, [DummyClassWithAttribute::class]));
-        static::assertTrue($this->traitObject->callIsInstance($object, [\stdClass::class, DummyClassWithAttribute::class]));
+        static::assertTrue($this->traitObject->callIsInstance($object, [
+            \stdClass::class,
+            DummyClassWithAttribute::class,
+        ]));
         static::assertFalse($this->traitObject->callIsInstance($object, [\stdClass::class]));
         static::assertFalse($this->traitObject->callIsInstance($object, []));
     }
@@ -232,7 +237,6 @@ PHP;
         // Note: ReflectionMethod constants are different from Property constants in older PHP,
         // but ReflectionMethod::IS_PUBLIC works.
         // However, the trait simply passes the filter.
-
         // Let's assume standard behavior.
         // We just check it calls reflection correctly.
     }

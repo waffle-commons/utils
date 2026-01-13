@@ -82,7 +82,7 @@ trait ReflectionTrait
                         break 2; // Found the class name, stop everything
                     }
 
-                    if ($tokens[$j] === '{' || (is_array($tokens[$j]) && $tokens[$j][0] === T_CURLY_OPEN)) {
+                    if ($tokens[$j] === '{' || is_array($tokens[$j]) && $tokens[$j][0] === T_CURLY_OPEN) {
                         // Anonymous class or class without name -> Stop searching for this token
                         break;
                     }
