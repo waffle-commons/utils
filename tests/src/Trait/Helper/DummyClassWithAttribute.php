@@ -7,11 +7,7 @@ namespace WaffleTests\Commons\Utils\Trait\Helper;
 #[DummyAttribute(value: 'test-value')]
 class DummyClassWithAttribute
 {
-    public function publicMethod(): void
-    {
-    }
+    public function publicMethod(): void {}
 
-    protected function protectedMethod(): void
-    {
-    }
+    protected function protectedMethod(): void {}
 }
