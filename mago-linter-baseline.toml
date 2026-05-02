@@ -9,19 +9,13 @@ count = 1
 [[issues]]
 file = "src/Trait/ReflectionTrait.php"
 code = "halstead"
-message = "Method has a high halstead difficulty"
-count = 1
-
-[[issues]]
-file = "src/Trait/ReflectionTrait.php"
-code = "halstead"
-message = "Method has a high halstead effort"
+message = "Method has a high halstead difficulty and effort"
 count = 1
 
 [[issues]]
 file = "src/Trait/ReflectionTrait.php"
 code = "kan-defect"
-message = "Trait has a high kan defect score (1.9800000000000002)."
+message = "Trait has a high kan defect score."
 count = 1
 
 [[issues]]
@@ -34,6 +28,12 @@ count = 1
 file = "src/Trait/ReflectionTrait.php"
 code = "no-else-clause"
 message = "Avoid `else` clauses."
+count = 1
+
+[[issues]]
+file = "src/Trait/ReflectionTrait.php"
+code = "no-isset"
+message = "Use of the `isset` construct."
 count = 1
 
 [[issues]]

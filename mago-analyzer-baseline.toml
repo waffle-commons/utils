@@ -27,13 +27,13 @@ count = 1
 [[issues]]
 file = "tests/src/Trait/Helper/TraitReflection.php"
 code = "less-specific-nested-argument-type"
-message = 'Argument type mismatch for argument #2 of `waffle\commons\utils\trait\reflectiontrait::isinstance`: expected `array<array-key, class-string>`, but provided type `array<array-key, mixed>` is less specific.'
+message = 'Argument type mismatch for argument #2 of `Waffle\Commons\Utils\Trait\ReflectionTrait::isInstance`: expected `array<array-key, class-string>`, but provided type `array<array-key, mixed>` is less specific.'
 count = 1
 
 [[issues]]
 file = "tests/src/Trait/Helper/TraitReflection.php"
 code = "possibly-invalid-argument"
-message = '''Possible argument type mismatch for argument #1 of `waffle\commons\utils\trait\reflectiontrait::controllervalues`: expected `array{'arguments': array<non-empty-string, string>, 'classname': string, 'method': non-empty-string, 'name': truthy-string, 'path': string}|null`, but possibly received `array<array-key, mixed>|null`.'''
+message = '''Possible argument type mismatch for argument #1 of `Waffle\Commons\Utils\Trait\ReflectionTrait::controllerValues`: expected `array{'arguments': array<non-empty-string, string>, 'classname': string, 'method': non-empty-string, 'name': truthy-string, 'path': string}|null`, but possibly received `array<array-key, mixed>|null`.'''
 count = 1
 
 [[issues]]
@@ -62,7 +62,7 @@ count = 1
 
 [[issues]]
 file = "tests/src/Trait/ReflectionTraitTest.php"
-code = "possibly-undefined-array-index"
+code = "possibly-undefined-int-array-index"
 message = "Possibly undefined array key `int(0)` accessed on `array<array-key, mixed>`."
 count = 1
 
