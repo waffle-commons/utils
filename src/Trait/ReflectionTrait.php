@@ -56,18 +56,14 @@ trait ReflectionTrait
                         break;
                     }
 
-                    if (is_array($tokens[$i])) {
-                        $namespace .= $tokens[$i][1];
-                    } else {
-                        // Handle simple chars like separators if returned as strings
-                        $namespace .= $tokens[$i];
-                    }
+                    // Handle simple chars like separators if returned as strings
+                    $namespace .= is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
                 }
                 continue;
             }
 
             // 2. Detect Class / Interface / Trait / Enum
-            if (is_array($token) && in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM], true)) {
+            if (is_array($token) && in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM], strict: true)) {
                 // We need to look forward to find the string name
                 // This skips modifiers (readonly, final, abstract) and whitespace/comments
 
@@ -107,7 +103,7 @@ trait ReflectionTrait
         $obj = new ReflectionObject(object: $className);
         $attributes = $obj->getAttributes(name: $attribute);
 
-        if (isset($attributes[0])) {
+        if (($attributes[0] ?? null) !== null) {
             return $attributes[0]->newInstance();
         }
 
