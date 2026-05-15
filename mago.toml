@@ -71,4 +71,19 @@ ignore = [
         "tests/",
         "src/",
     ] },
+    { code = "unknown-class-instantiation", in = [
+        "src/Trait/ReflectionTrait.php",
+    ] },
+    { code = "possibly-invalid-argument", in = [
+        "tests/",
+    ] },
+    { code = "less-specific-nested-argument-type", in = [
+        "tests/",
+    ] },
+    { code = "mixed-method-access", in = [
+        "tests/",
+    ] },
+    { code = "non-existent-attribute-class", in = [
+        "tests/",
+    ] },
 ]

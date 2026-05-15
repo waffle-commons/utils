@@ -34,9 +34,11 @@ final class ReflectionTraitTest extends TestCase
         parent::tearDown();
         // Clean up temporary files created during tests
         foreach ($this->createdFiles as $file) {
-            if (!(file_exists($file))) { continue; }
+            if (!file_exists($file)) {
+                continue;
+            }
 
-unlink($file);
+            unlink($file);
         }
     }
 

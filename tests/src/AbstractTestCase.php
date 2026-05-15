@@ -6,6 +6,4 @@ namespace WaffleTests\Commons\Utils;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
-abstract class AbstractTestCase extends BaseTestCase
-{
-}
+abstract class AbstractTestCase extends BaseTestCase {}
