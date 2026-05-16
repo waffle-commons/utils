@@ -9,7 +9,9 @@
 Waffle Utils Component
 ======================
 
-A collection of utility classes and traits used throughout the Waffle Framework.
+> **Release:** `v0.1.0-beta0`
+
+Stateless, pure-function helpers shared across the Waffle ecosystem. The package intentionally has no I/O dependencies and no per-process state — every helper here is safe to use across FrankenPHP worker requests without reset.
 
 ## 📦 Installation
 
@@ -17,35 +19,48 @@ A collection of utility classes and traits used throughout the Waffle Framework.
 composer require waffle-commons/utils
 ```
 
-## 🚀 Usage
+## 🧱 Surface
 
-### ReflectionTrait
+| Class / trait | Role |
+| :--- | :--- |
+| `Waffle\Commons\Utils\Trait\ReflectionTrait` | Tokenizer-based class introspection used by the router and container for attribute discovery. |
 
-Provides helper methods for reflection, useful for testing or metaprogramming.
+That is the entire Beta 0 surface. The package will grow only when a helper is genuinely shared across more than one component.
+
+## 🔍 `ReflectionTrait`
+
+Reads a PHP file with `token_get_all()` (no regex, no eval) and returns the fully qualified class/interface/trait/enum name found inside, or an empty string if none is present. Used by the routing component's `RouteDiscoverer` and `ControllerFinder` for attribute-based route scanning.
 
 ```php
 use Waffle\Commons\Utils\Trait\ReflectionTrait;
 
-class MyClass {
+final class MyDiscoverer
+{
     use ReflectionTrait;
+
+    public function fqcnFor(string $absolutePath): string
+    {
+        return $this->className($absolutePath);
+    }
 }
 ```
 
-Testing
--------
+The implementation handles:
 
-To run the tests, use the following command:
+- Bracketed (`namespace App { … }`) and statement (`namespace App;`) namespace forms.
+- PHP 8.x `final`, `readonly`, `abstract` modifiers in front of `class`/`interface`/`trait`/`enum`.
+- Anonymous classes — they are skipped (returns the first non-anonymous declaration).
+
+## 🐘 PHP 8.5 surface
+
+`ReflectionTrait` declares strict types and explicit return types throughout. The trait does not introduce mutable state and is safe to compose into a `readonly` class.
+
+## 🧪 Testing
 
 ```bash
-composer tests
+docker exec -w /waffle-commons/utils waffle-dev composer tests
 ```
 
-Contributing
-------------
+## 📄 License
 
-Contributions are welcome! Please refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
-
-License
--------
-
-This project is licensed under the MIT License. See the [LICENSE.md](./LICENSE.md) file for details.
+MIT — see [LICENSE.md](./LICENSE.md).
