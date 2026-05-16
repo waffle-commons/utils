@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2e3544668f361f5839694ac9326bd83f",
+    "content-hash": "11d0f367acd7394d6302646d7df019f4",
     "packages": [
         {
             "name": "psr/cache",
@@ -427,16 +427,16 @@
         },
         {
             "name": "waffle-commons/contracts",
-            "version": "0.1.0-alpha6",
+            "version": "0.1.0-beta0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/waffle-commons/contracts.git",
-                "reference": "a95e303bdc38b7ba2da18d491dc9d84ae79e8710"
+                "reference": "1d3c2943a1cb2b14c98e768b12d2dbd183728175"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/waffle-commons/contracts/zipball/a95e303bdc38b7ba2da18d491dc9d84ae79e8710",
-                "reference": "a95e303bdc38b7ba2da18d491dc9d84ae79e8710",
+                "url": "https://api.github.com/repos/waffle-commons/contracts/zipball/1d3c2943a1cb2b14c98e768b12d2dbd183728175",
+                "reference": "1d3c2943a1cb2b14c98e768b12d2dbd183728175",
                 "shasum": ""
             },
             "require": {
@@ -476,9 +476,9 @@
             "description": "Contracts component for Waffle framework.",
             "support": {
                 "issues": "https://github.com/waffle-commons/contracts/issues",
-                "source": "https://github.com/waffle-commons/contracts/tree/0.1.0-alpha6"
+                "source": "https://github.com/waffle-commons/contracts/tree/0.1.0-beta0"
             },
-            "time": "2026-05-15T15:09:06+00:00"
+            "time": "2026-05-16T13:54:29+00:00"
         }
     ],
     "packages-dev": [
@@ -5977,7 +5977,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "carthage-software/mago": 5,
-        "waffle-commons/contracts": 15
+        "waffle-commons/contracts": 10
     },
     "prefer-stable": false,
     "prefer-lowest": false,

@@ -8,7 +8,6 @@ use Generator;
 use ReflectionMethod;
 use ReflectionObject;
 use ReflectionProperty;
-use Waffle\Commons\Contracts\Constant\Constant;
 
 trait ReflectionTrait
 {
@@ -24,12 +23,12 @@ trait ReflectionTrait
     public function className(string $path): string
     {
         if (!file_exists($path) || !is_readable($path)) {
-            return Constant::EMPTY_STRING;
+            return '';
         }
 
         $contents = file_get_contents($path);
         if ($contents === false) {
-            return Constant::EMPTY_STRING;
+            return '';
         }
 
         // Secure Native Parsing using PHP Tokenizer
@@ -87,7 +86,7 @@ trait ReflectionTrait
         }
 
         if ('' === $class) {
-            return Constant::EMPTY_STRING;
+            return '';
         }
 
         return $namespace ? $namespace . '\\' . $class : $class;
