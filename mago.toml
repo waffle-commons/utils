@@ -100,15 +100,15 @@ analyze-dead-code = true
 strict-list-index-checks = true
 strict-array-index-existence = true
 ignore = [
-    # ReflectionTrait performs token_get_all() walks where the loop variable is
+    # ClassParser performs a token_get_all() walk where the loop variable is
     # bounded by count($tokens); Mago's strict list-index analyzer can't prove
-    # the bound, so we suppress these false positives for the trait specifically.
+    # the bound, so we suppress these false positives for the parser specifically.
     { code = "possibly-undefined-int-array-index", in = [
-        "src/Trait/ReflectionTrait.php",
+        "src/Service/ClassParser.php",
         "tests/",
     ] },
     { code = "possibly-null-operand", in = [
-        "src/Trait/ReflectionTrait.php",
+        "src/Service/ClassParser.php",
     ] },
     { code = "mixed-assignment", in = [
         "tests/",
@@ -136,7 +136,7 @@ ignore = [
         "src/",
     ] },
     { code = "unknown-class-instantiation", in = [
-        "src/Trait/ReflectionTrait.php",
+        "src/Service/AttributeReader.php",
     ] },
     { code = "possibly-invalid-argument", in = [
         "tests/",
