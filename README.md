@@ -9,9 +9,13 @@
 Waffle Utils Component
 ======================
 
-> **Release:** `v0.1.0-beta0`
+> **Release:** `v0.1.0-beta1`
 
 Stateless, pure-function helpers shared across the Waffle ecosystem. The package intentionally has no I/O dependencies and no per-process state — every helper here is safe to use across FrankenPHP worker requests without reset.
+
+## 🆕 Beta-1 change
+
+The former `Waffle\Commons\Utils\Trait\ReflectionTrait` has been **removed** and decomposed into three single-responsibility `final readonly` services (Beta-1 Phase 1 architectural pass — Single Responsibility over trait-based reuse). Consumers inject the service they need instead of mixing in a trait.
 
 ## 📦 Installation
 
@@ -21,28 +25,23 @@ composer require waffle-commons/utils
 
 ## 🧱 Surface
 
-| Class / trait | Role |
+| Class | Role |
 | :--- | :--- |
-| `Waffle\Commons\Utils\Trait\ReflectionTrait` | Tokenizer-based class introspection used by the router and container for attribute discovery. |
+| `Waffle\Commons\Utils\Service\ClassParser` | Tokenizer-based class introspection. `className(string $path): string` reads a PHP file with `token_get_all()` (no regex, no eval) and returns the fully qualified class/interface/trait/enum name, or `''` if none. Used by routing's `RouteDiscoverer` / `ControllerFinder`. |
+| `Waffle\Commons\Utils\Service\AttributeReader` | `newAttributeInstance(object $target, string $attribute): object` resolves an attribute instance from a target, falling back to a zero-arg instance when the target carries no matching attribute (preserving the former trait's contract). |
+| `Waffle\Commons\Utils\Service\ReflectionInspector` | Object-shape inspection: `isFinal()`, `isInstance()`, `getProperties()`, `getMethods()`. |
 
-That is the entire Beta 0 surface. The package will grow only when a helper is genuinely shared across more than one component.
+The package grows only when a helper is genuinely shared across more than one component.
 
-## 🔍 `ReflectionTrait`
+## 🔍 `ClassParser`
 
-Reads a PHP file with `token_get_all()` (no regex, no eval) and returns the fully qualified class/interface/trait/enum name found inside, or an empty string if none is present. Used by the routing component's `RouteDiscoverer` and `ControllerFinder` for attribute-based route scanning.
+Reads a PHP file with `token_get_all()` (no regex, no eval) and returns the fully qualified class/interface/trait/enum name found inside, or an empty string if none is present.
 
 ```php
-use Waffle\Commons\Utils\Trait\ReflectionTrait;
+use Waffle\Commons\Utils\Service\ClassParser;
 
-final class MyDiscoverer
-{
-    use ReflectionTrait;
-
-    public function fqcnFor(string $absolutePath): string
-    {
-        return $this->className($absolutePath);
-    }
-}
+$parser = new ClassParser();
+$fqcn = $parser->className('/path/to/UserController.php'); // 'App\Controller\UserController'
 ```
 
 The implementation handles:
@@ -53,7 +52,7 @@ The implementation handles:
 
 ## 🐘 PHP 8.5 surface
 
-`ReflectionTrait` declares strict types and explicit return types throughout. The trait does not introduce mutable state and is safe to compose into a `readonly` class.
+All three services are `final readonly class` with strict types and explicit return types throughout. They hold no mutable state and are safe to reuse across FrankenPHP worker requests.
 
 ## 🧪 Testing
 
