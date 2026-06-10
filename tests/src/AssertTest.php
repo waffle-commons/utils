@@ -18,6 +18,7 @@ use Waffle\Commons\Utils\Exception\ValidationException;
 use WaffleTests\Commons\Utils\AbstractTestCase as TestCase;
 
 use function is_file;
+use function realpath;
 use function sys_get_temp_dir;
 use function tempnam;
 use function unlink;
@@ -415,6 +416,157 @@ final class AssertTest extends TestCase
 
         $withoutField = new ValidationException('bad');
         static::assertNull($withoutField->getField());
+    }
+
+    // ----------------------------------------------------- File: traversal
+
+    /**
+     * @param non-empty-string $path
+     * @param non-empty-string $expected
+     */
+    #[DataProvider('safePathAcceptProvider')]
+    public function testSafePathAcceptsCleanPath(string $path, string $expected): void
+    {
+        static::assertSame($expected, Assert::safePath($path));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function safePathAcceptProvider(): iterable
+    {
+        yield 'relative file' => ['uploads/avatar.png', 'uploads/avatar.png'];
+        yield 'trims surrounding space' => ['  reports/q3.pdf  ', 'reports/q3.pdf'];
+        yield 'dot-prefixed filename is fine' => ['data/.keep', 'data/.keep'];
+        yield 'single dot segment is fine' => ['a/./b', 'a/./b'];
+    }
+
+    #[DataProvider('safePathRejectProvider')]
+    public function testSafePathRejectsTraversal(string $path): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('illegal directory-traversal segment');
+
+        Assert::safePath($path);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function safePathRejectProvider(): iterable
+    {
+        yield 'leading parent' => ['../etc/passwd'];
+        yield 'embedded parent' => ['uploads/../../etc/passwd'];
+        yield 'backslash parent' => ['uploads\\..\\secret'];
+        yield 'bare parent' => ['..'];
+    }
+
+    public function testSafePathRejectsNullByte(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Path contains an illegal null byte.');
+
+        Assert::safePath("ok/file\0.png");
+    }
+
+    public function testWithinReturnsNormalizedTargetBeneathBase(): void
+    {
+        $base = realpath(sys_get_temp_dir());
+        static::assertIsString($base);
+
+        static::assertSame($base . '/uploads/avatar.png', Assert::within($base, 'uploads/avatar.png'));
+        // '.'/'..' collapse lexically but still land inside the base.
+        static::assertSame($base . '/a/b', Assert::within($base, 'a/./c/../b'));
+    }
+
+    public function testWithinRejectsEscapingPath(): void
+    {
+        $base = realpath(sys_get_temp_dir());
+        static::assertIsString($base);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('escapes the permitted base directory');
+
+        Assert::within($base, '../../etc/passwd');
+    }
+
+    public function testWithinRejectsAbsoluteEscape(): void
+    {
+        $base = realpath(sys_get_temp_dir());
+        static::assertIsString($base);
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('escapes the permitted base directory');
+
+        Assert::within($base, '/etc/passwd');
+    }
+
+    public function testWithinRejectsMissingBase(): void
+    {
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('does not exist');
+
+        Assert::within(self::MISSING_PATH, 'file.txt');
+    }
+
+    // ------------------------------------------------------- Network: SSRF
+
+    #[DataProvider('publicIpProvider')]
+    public function testIsPublicIp(string $ip, bool $expected): void
+    {
+        static::assertSame($expected, Assert::isPublicIp($ip));
+    }
+
+    /**
+     * @return iterable<string, array{string, bool}>
+     */
+    public static function publicIpProvider(): iterable
+    {
+        yield 'public v4 (Google)' => ['8.8.8.8', true];
+        yield 'public v4 (Cloudflare)' => ['1.1.1.1', true];
+        yield 'public v6 (Cloudflare)' => ['2606:4700:4700::1111', true];
+        yield 'rfc1918 10/8' => ['10.0.0.1', false];
+        yield 'rfc1918 172.16/12' => ['172.16.5.4', false];
+        yield 'rfc1918 192.168/16' => ['192.168.1.1', false];
+        yield 'loopback v4' => ['127.0.0.1', false];
+        yield 'link-local v4' => ['169.254.10.1', false];
+        yield 'cgnat 100.64/10' => ['100.64.0.1', false];
+        yield 'unspecified v4' => ['0.0.0.0', false];
+        yield 'multicast v4' => ['224.0.0.1', false];
+        yield 'broadcast v4' => ['255.255.255.255', false];
+        yield 'loopback v6' => ['::1', false];
+        yield 'unique-local v6' => ['fc00::1', false];
+        yield 'link-local v6' => ['fe80::1', false];
+        yield 'multicast v6' => ['ff02::1', false];
+        yield 'ipv4-mapped loopback' => ['::ffff:127.0.0.1', false];
+        yield 'malformed' => ['not-an-ip', false];
+        yield 'out-of-range octet' => ['999.1.1.1', false];
+        yield 'empty' => ['', false];
+    }
+
+    #[DataProvider('cidrContainmentProvider')]
+    public function testIpInCidr(string $ip, string $cidr, bool $expected): void
+    {
+        static::assertSame($expected, Assert::ipInCidr($ip, $cidr));
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool}>
+     */
+    public static function cidrContainmentProvider(): iterable
+    {
+        yield 'v4 inside /8' => ['10.1.2.3', '10.0.0.0/8', true];
+        yield 'v4 inside /16' => ['192.168.5.4', '192.168.0.0/16', true];
+        yield 'v4 outside /8' => ['11.0.0.1', '10.0.0.0/8', false];
+        yield 'v4 match-all /0' => ['8.8.8.8', '0.0.0.0/0', true];
+        yield 'v6 inside /32' => ['2001:db8::5', '2001:db8::/32', true];
+        yield 'family mismatch' => ['10.0.0.1', '2001:db8::/32', false];
+        yield 'bad cidr (no slash)' => ['10.0.0.1', '10.0.0.0', false];
+        yield 'bad cidr (empty prefix)' => ['10.0.0.1', '10.0.0.0/', false];
+        yield 'bad cidr (non-numeric)' => ['10.0.0.1', '10.0.0.0/ab', false];
+        yield 'prefix above v4 max' => ['10.0.0.1', '10.0.0.0/33', false];
+        yield 'invalid ip' => ['nope', '10.0.0.0/8', false];
+        yield 'invalid subnet' => ['10.0.0.1', '999.0.0.0/8', false];
     }
 
     /**
