@@ -10,13 +10,13 @@ use function ctype_digit;
 use function filter_var;
 use function inet_pton;
 use function intdiv;
+use function mb_trim;
 use function ord;
 use function sprintf;
 use function strlen;
 use function strpos;
 use function strtolower;
 use function substr;
-use function trim;
 
 use const FILTER_FLAG_IPV4;
 use const FILTER_VALIDATE_IP;
@@ -75,7 +75,7 @@ trait NetworkAssertionsTrait
      */
     public static function ip(string $value, ?string $message = null): string
     {
-        $trimmed = trim($value);
+        $trimmed = mb_trim($value);
         if (filter_var($trimmed, FILTER_VALIDATE_IP) === false) {
             throw new ValidationException($message ?? sprintf('"%s" is not a valid IP address.', $value));
         }
@@ -107,7 +107,7 @@ trait NetworkAssertionsTrait
      */
     public static function cidr(string $value, ?string $message = null): string
     {
-        $trimmed = trim($value);
+        $trimmed = mb_trim($value);
         $slash = strpos($trimmed, '/');
         if ($slash === false) {
             throw new ValidationException($message ?? sprintf('"%s" is not valid CIDR notation.', $value));
@@ -141,7 +141,7 @@ trait NetworkAssertionsTrait
      */
     public static function isPublicIp(string $ip): bool
     {
-        $trimmed = trim($ip);
+        $trimmed = mb_trim($ip);
         if (filter_var($trimmed, FILTER_VALIDATE_IP) === false) {
             return false;
         }
@@ -162,7 +162,7 @@ trait NetworkAssertionsTrait
      */
     public static function ipInCidr(string $ip, string $cidr): bool
     {
-        $ipTrim = trim($ip);
+        $ipTrim = mb_trim($ip);
         if (filter_var($ipTrim, FILTER_VALIDATE_IP) === false) {
             return false;
         }

@@ -8,10 +8,10 @@ use Waffle\Commons\Utils\Exception\ValidationException;
 
 use function filter_var;
 use function mb_strlen;
+use function mb_trim;
 use function preg_match;
 use function sprintf;
 use function strtolower;
-use function trim;
 
 use const FILTER_VALIDATE_EMAIL;
 
@@ -33,7 +33,7 @@ trait StringAssertionsTrait
      */
     public static function email(string $value, ?string $message = null): string
     {
-        $trimmed = trim($value);
+        $trimmed = mb_trim($value);
         if (filter_var($trimmed, FILTER_VALIDATE_EMAIL) === false) {
             throw new ValidationException($message ?? sprintf('"%s" is not a valid email address.', $value));
         }
@@ -48,7 +48,7 @@ trait StringAssertionsTrait
      */
     public static function uuid(string $value, ?string $message = null): string
     {
-        $trimmed = trim($value);
+        $trimmed = mb_trim($value);
         $pattern = '/^[0-9a-f]{8}-[0-9a-f]{4}-[45][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i';
         if (preg_match($pattern, $trimmed) !== 1) {
             throw new ValidationException($message ?? sprintf('"%s" is not a valid v4/v5 UUID.', $value));
@@ -98,7 +98,7 @@ trait StringAssertionsTrait
      */
     public static function notEmpty(string $value, ?string $message = null): string
     {
-        $trimmed = trim($value);
+        $trimmed = mb_trim($value);
         if ($trimmed === '') {
             throw new ValidationException($message ?? 'Value must not be empty.');
         }

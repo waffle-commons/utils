@@ -12,12 +12,12 @@ use function file_exists;
 use function implode;
 use function is_readable;
 use function is_writable;
+use function mb_trim;
 use function realpath;
 use function sprintf;
 use function str_contains;
 use function str_replace;
 use function str_starts_with;
-use function trim;
 
 /**
  * Filesystem-family assertions for {@see \Waffle\Commons\Utils\Assert}
@@ -150,7 +150,7 @@ trait FileAssertionsTrait
             throw new ValidationException('Path contains an illegal null byte.');
         }
 
-        $trimmed = trim($path);
+        $trimmed = mb_trim($path);
         if ($trimmed === '') {
             throw new ValidationException('Path must not be empty.');
         }

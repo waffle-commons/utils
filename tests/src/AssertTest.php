@@ -69,6 +69,9 @@ final class AssertTest extends TestCase
         yield 'trims and lower-cases' => ['  ADA@Example.COM ', 'ada@example.com'];
         yield 'already canonical' => ['user@host.io', 'user@host.io'];
         yield 'plus addressing' => ['Dev+Tag@Domain.DEV', 'dev+tag@domain.dev'];
+        // U+3000 ideographic space + U+00A0 non-breaking space — stripped by
+        // mb_trim (DX-04); plain trim would leave them and reject the address.
+        yield 'trims multibyte whitespace' => ["\u{3000}MB@Example.com\u{00A0}", 'mb@example.com'];
     }
 
     public function testEmailRejectsInvalidWithDefaultMessage(): void
@@ -171,6 +174,16 @@ final class AssertTest extends TestCase
         $this->expectExceptionMessage('Name is required.');
 
         Assert::notEmpty('', 'Name is required.');
+    }
+
+    public function testNotEmptyTreatsMultibyteWhitespaceAsBlank(): void
+    {
+        // A string of only U+3000 (ideographic) + U+00A0 (non-breaking) spaces is
+        // blank once mb_trim strips them (DX-04); plain trim would wrongly pass it.
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Value must not be empty.');
+
+        Assert::notEmpty("\u{3000}\u{00A0}");
     }
 
     // --------------------------------------------------------------- Numeric
