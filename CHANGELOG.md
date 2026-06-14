@@ -5,6 +5,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Released in lockstep with the Waffle Commons umbrella tag.
 
+## [0.1.0-beta4] — 2026-06-13
+
+**Theme: security hardening & developer experience.**
+
+### Added
+- `Validation\AssertValidator` + `Validation\ValidationResult` + `Validation\Violation` — an injectable, mockable `ValidatorInterface` wrapping the static `Assert` facade (DX-05).
+
+### Changed
+- Migrated user-input normalisation from `trim()` to native `mb_trim()` across the `Assert` traits, correctly stripping multi-byte whitespace (DX-04).
+- Worker-safety migration to igor-php 0.7 (`#[WorkerSafe]`).
+
 ## [0.1.0-beta3] — 2026-06-07
 
 **Theme: identity federation & stateless persistence (ecosystem wave).**

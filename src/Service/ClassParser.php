@@ -41,7 +41,7 @@ final readonly class ClassParser
             if (is_array($token) && $token[0] === T_NAMESPACE) {
                 while (++$i < $count) {
                     if ($tokens[$i] === ';' || $tokens[$i] === '{') {
-                        $namespace = trim($namespace);
+                        $namespace = mb_trim($namespace);
                         break;
                     }
                     $namespace .= is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];
