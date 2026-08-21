@@ -1,6 +1,6 @@
 {
     "name": "waffle-commons/utils",
-    "description": "Utils component for Waffle framework.",
+    "description": "Stateless, pure-function helpers shared across the Waffle Commons ecosystem: no I/O, no per-process state, safe to use across FrankenPHP worker requests.",
     "type": "library",
     "license": "MIT",
     "autoload": {
