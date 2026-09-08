@@ -110,9 +110,19 @@ trait FileAssertionsTrait
      *
      * The target itself need NOT exist yet (e.g. an upload destination), so
      * containment is computed lexically against `realpath($base)` rather than
-     * by `realpath()`-ing the target. An absolute `$path`, or one that climbs
-     * out with `..`, is rejected — defeating path-traversal writes even when
-     * the caller forwards attacker-influenced metadata.
+     * by `realpath()`-ing the target.
+     *
+     * An absolute `$path` is ACCEPTED and checked for containment — it is not
+     * rejected outright, which is what makes this stricter than `safePath()`:
+     * `/etc/passwd` climbs nowhere and contains no `..`, yet must still be
+     * refused when the base is `/app/var/uploads`. A relative path is resolved
+     * against the base first. Either form is rejected once normalisation shows
+     * it landing outside.
+     *
+     * Containment is LEXICAL: a symlink planted inside the base that points
+     * outside it is not followed, so this is a containment control, not a
+     * defence against an attacker who can already create symlinks under the
+     * upload root.
      *
      * @throws ValidationException When `$base` does not exist, or the resolved
      *         path escapes it.

@@ -10,7 +10,7 @@
 Waffle Utils Component
 ======================
 
-> **Release:** `0.1.0-beta5` &nbsp;|&nbsp; [`CHANGELOG.md`](./CHANGELOG.md)
+> **Release:** `0.1.0-beta6` &nbsp;|&nbsp; [`CHANGELOG.md`](./CHANGELOG.md)
 
 Stateless, pure-function helpers shared across the Waffle ecosystem. The package intentionally has no I/O dependencies and no per-process state — every helper here is safe to use across FrankenPHP worker requests without reset.
 
@@ -75,6 +75,13 @@ Contract-first, component-agnostic by construction: components compose through `
 ```bash
 docker exec -w /waffle-commons/utils waffle-dev composer tests
 ```
+
+## 📚 Documentation
+
+Full guides live in the central Diátaxis documentation tree:
+
+- [Reference — `waffle-commons/utils`](https://github.com/waffle-commons/documentation/blob/main/reference/utils.md)
+- [Documentation home](https://github.com/waffle-commons/documentation)
 
 ## 📄 License
 
