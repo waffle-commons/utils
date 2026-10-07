@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Released in lockstep with the Waffle Commons umbrella tag.
 
+## [Unreleased]
+
+### Added
+- `Dto\Shape\DtoShapeReader` — the build-time DTO-shape reader shared by the serializer (API-02) and the OpenAPI generator (API-01), so the spec matches what the serializer accepts and emits (CARRY-04). It reads a `#[Dto]` class into a `Dto\Shape\DtoShape`: constructor parameters in (`InputField`: name, type, required, default) and readable properties out (`OutputField`: name, type, computed). It honours property hooks (a get-only virtual property is a computed output, a set-only one is not an output) and asymmetric visibility. `readGraph()` follows nested DTOs once, cycles included. Types are described by `Dto\Shape\FieldType` and `Dto\Shape\Enum\TypeKind`; list element types come from the new `#[ListOf]` contracts attribute.
+- `Exception\UnsupportedDtoShapeException` — raised at build time, naming the class and the member, when a DTO uses a construct the serializer and the OpenAPI generator cannot represent.
+
 ## [0.1.0-beta6] — 2026-09
 
 **Theme: documentation.**
