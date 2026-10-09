@@ -32,6 +32,7 @@ composer require waffle-commons/utils
 | `Waffle\Commons\Utils\Service\AttributeReader` | `newAttributeInstance(object $target, string $attribute): object` resolves an attribute instance from a target, falling back to a zero-arg instance when the target carries no matching attribute (preserving the former trait's contract). |
 | `Waffle\Commons\Utils\Service\ReflectionInspector` | Object-shape inspection: `isFinal()`, `isInstance()`, `getProperties()`, `getMethods()`. |
 | `Waffle\Commons\Utils\Dto\Shape\DtoShapeReader` | Build-time reader of a `#[Dto]` class: constructor parameters in, readable properties out. Shared by the serializer and the OpenAPI generator (`0.1.0-beta7`, CARRY-04). |
+| `Waffle\Commons\Utils\Clock\SystemClock` | The PSR-20 clock for production: `now()` reads the system time in the time zone given at construction (UTC by default). Code takes a `Psr\Clock\ClockInterface` by injection; tests swap in the frozen clock of `waffle-commons/testing` (`0.1.0-beta7`, CARRY-04). |
 
 The package grows only when a helper is genuinely shared across more than one component.
 

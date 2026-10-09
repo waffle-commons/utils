@@ -10,6 +10,7 @@ Released in lockstep with the Waffle Commons umbrella tag.
 ### Added
 - `Dto\Shape\DtoShapeReader` — the build-time DTO-shape reader shared by the serializer (API-02) and the OpenAPI generator (API-01), so the spec matches what the serializer accepts and emits (CARRY-04). It reads a `#[Dto]` class into a `Dto\Shape\DtoShape`: constructor parameters in (`InputField`: name, type, required, default) and readable properties out (`OutputField`: name, type, computed). It honours property hooks (a get-only virtual property is a computed output, a set-only one is not an output) and asymmetric visibility. `readGraph()` follows nested DTOs once, cycles included. Types are described by `Dto\Shape\FieldType` and `Dto\Shape\Enum\TypeKind`; list element types come from the new `#[ListOf]` contracts attribute.
 - `Exception\UnsupportedDtoShapeException` — raised at build time, naming the class and the member, when a DTO uses a construct the serializer and the OpenAPI generator cannot represent.
+- `Clock\SystemClock` — the PSR-20 clock for production (CARRY-04): `now()` reads the system time in the time zone given at construction, UTC by default rather than the ambient `date.timezone`. New code takes a `Psr\Clock\ClockInterface` by injection; tests use the frozen clock of `waffle-commons/testing`. `psr/clock` ^1.0 is now a direct dependency.
 
 ## [0.1.0-beta6] — 2026-09
 
