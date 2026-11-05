@@ -10,7 +10,7 @@
 Waffle Utils Component
 ======================
 
-> **Release:** `0.1.0-beta6` &nbsp;|&nbsp; [`CHANGELOG.md`](./CHANGELOG.md)
+> **Release:** `0.1.0-beta7` &nbsp;|&nbsp; [`CHANGELOG.md`](./CHANGELOG.md)
 
 Stateless, pure-function helpers shared across the Waffle ecosystem. The package intentionally has no I/O dependencies and no per-process state — every helper here is safe to use across FrankenPHP worker requests without reset.
 
@@ -31,8 +31,31 @@ composer require waffle-commons/utils
 | `Waffle\Commons\Utils\Service\ClassParser` | Tokenizer-based class introspection. `className(string $path): string` reads a PHP file with `token_get_all()` (no regex, no eval) and returns the fully qualified class/interface/trait/enum name, or `''` if none. Used by routing's `RouteDiscoverer` / `ControllerFinder`. |
 | `Waffle\Commons\Utils\Service\AttributeReader` | `newAttributeInstance(object $target, string $attribute): object` resolves an attribute instance from a target, falling back to a zero-arg instance when the target carries no matching attribute (preserving the former trait's contract). |
 | `Waffle\Commons\Utils\Service\ReflectionInspector` | Object-shape inspection: `isFinal()`, `isInstance()`, `getProperties()`, `getMethods()`. |
+| `Waffle\Commons\Utils\Dto\Shape\DtoShapeReader` | Build-time reader of a `#[Dto]` class: constructor parameters in, readable properties out. Shared by the serializer and the OpenAPI generator (`0.1.0-beta7`, CARRY-04). |
+| `Waffle\Commons\Utils\Clock\SystemClock` | The PSR-20 clock for production: `now()` reads the system time in the time zone given at construction (UTC by default). Code takes a `Psr\Clock\ClockInterface` by injection; tests swap in the frozen clock of `waffle-commons/testing` (`0.1.0-beta7`, CARRY-04). |
 
 The package grows only when a helper is genuinely shared across more than one component.
+
+## 🧩 `DtoShapeReader`
+
+Reads what a `#[Dto]` class accepts and emits, at build time, so the serializer's compiled normalizers and the OpenAPI schema describe the same thing:
+
+```php
+use Waffle\Commons\Utils\Dto\Shape\DtoShapeReader;
+
+$shape = new DtoShapeReader()->read(OrderInput::class);
+$shape->inputs;  // list<InputField>: the constructor parameters (name, type, required, default)
+$shape->outputs; // list<OutputField>: the readable properties (name, type, computed)
+
+$graph = new DtoShapeReader()->readGraph(OrderInput::class); // the DTO and every #[Dto] it reaches
+```
+
+- **Inputs** are the constructor parameters: a payload is hydrated through the constructor, so `set` hooks always run. A parameter is required when it has no default and is not nullable.
+- **Outputs** are the public, non-static properties, minus write-only virtual ones (a `set` hook without a `get` hook). A virtual property with a `get` hook is a computed output. `private(set)`, `protected(set)` and `readonly` do not affect reading.
+- **Types:** `int`, `float`, `string`, `bool`, a backed enum, a nested `#[Dto]` (`self` included), or an `array` whose element type is declared with `#[ListOf]`. Any of them can be nullable. A default value is `null`, a scalar, a backed enum case or `[]`.
+- Anything else (an untyped member, `mixed`, another union, an intersection, a pure enum, an object that is not a `#[Dto]`, a variadic or by-reference parameter) throws `Waffle\Commons\Utils\Exception\UnsupportedDtoShapeException`, naming the class and the member.
+
+It reflects on every call and caches nothing: no state survives a worker request.
 
 ## 🔍 `ClassParser`
 
@@ -53,7 +76,7 @@ The implementation handles:
 
 ## 🐘 PHP 8.5 surface
 
-All three services are `final readonly class` with strict types and explicit return types throughout. They hold no mutable state and are safe to reuse across FrankenPHP worker requests.
+All the services, the DTO-shape reader included, are `final readonly class` with strict types and explicit return types throughout. They hold no mutable state and are safe to reuse across FrankenPHP worker requests.
 
 ## 🧭 Architectural boundary (`mago guard`)
 
